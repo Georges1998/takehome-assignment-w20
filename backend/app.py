@@ -45,7 +45,6 @@ def create_response(
 def hello_world():
     return create_response({"content": "hello world!"})
 
-
 @app.route("/mirror/<name>")
 def mirror(name):
     data = {"name": name}
@@ -63,10 +62,30 @@ def delete_show(id):
     return create_response(message="Show deleted")
 
 
-# TODO: Implement the rest of the API here!
+@app.route("/shows/<id>", methods=['GET'])
+def getById(id):
+    if db.getById('shows', int(id)) is None:
+        return create_response(status=404, message="No show with this id exists")
+    data = db.getById('shows', int(id))
+    return create_response(data)
+
+@app.route("/shows", methods=['POST'])
+def create():
+    newShow = {"name": request.args["param1"], "episodes_seen": request.args["param2"]}
+    if request.args["param1"] == "" or request.args["param2"] == "":
+     return create_response(status=404, message="One of the paramater is missing")
+    else:
+     db.create("shows",newShow)
+     return create_response(message="Show Added")
+
+@app.route("/shows/minepisodes/<num>", methods=['GET'])
+def bonus(num):
+    tvShows =  [i for i in db.get("shows") if i["episodes_seen"] > int(num)]
+    return create_response({"shows": tvShows})
 
 """
 ~~~~~~~~~~~~ END API ~~~~~~~~~~~~
 """
+
 if __name__ == "__main__":
     app.run(port=8080, debug=True)
