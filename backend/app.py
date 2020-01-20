@@ -78,6 +78,18 @@ def create():
      db.create("shows",newShow)
      return create_response(message="Show Added")
 
+@app.route("/shows/<id>", methods=['PUT'])
+def updateShow(id):
+    if db.getById('shows', int(id)) is None:
+        return create_response(status=404, message="No show with this id exists")
+    else:
+        data = db.getById('shows',2)
+        if request.args["param1"] != "":
+            data['name']=request.args["param1"]
+        if request.args["param2"] != "":
+            data['episodes_seen']=request.args["param2"]
+        return create_response(data)
+
 @app.route("/shows/minepisodes/<num>", methods=['GET'])
 def bonus(num):
     tvShows =  [i for i in db.get("shows") if i["episodes_seen"] > int(num)]
